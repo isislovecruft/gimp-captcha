@@ -64,3 +64,4 @@ _trial_temp.lock
 
 captchas/*
 captchas-*/*
+.gimp-captcha-script.sh
