@@ -110,10 +110,11 @@ JPG_DCTALGO     = 0
 
 def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
                  angle_range, fonts, answer):
-    '''Generate a captcha consisting of the letters in answer.
+    """Generate a captcha consisting of the letters in answer.
 
-    Returns the captcha as a gimp-python image object.
-    '''
+    :rtype: :class:`gimp.Image`
+    :returns: The CAPTCHA as a gimp-python image object.
+    """
     img = gimp.Image(sx, sy, RGB_IMAGE)
     img.disable_undo()
 
