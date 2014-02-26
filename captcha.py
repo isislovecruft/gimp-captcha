@@ -147,8 +147,8 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
         img.add_layer(substrate, 0)
         new_right = cookie_cutter_letter(img, substrate, right, font, letter)
         # look out for really narrow letters
-        if new_right - right < 10:
-            new_right += 10
+        if new_right - right < 20:
+            new_right += 5
         right = new_right
 
     img.remove_layer(black_layer)
