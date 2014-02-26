@@ -20,11 +20,6 @@ directory will be "filled" to the goal level with pngs named like answer.png,
 where answer is the string pictured in the image.
 '''
 
-# ===================================================================
-# The first part of this file is the gimp scripting, meat of the
-# solution.
-# ===================================================================
-
 from tempfile import mkstemp
 
 import os
@@ -60,6 +55,58 @@ from gimpfu import CLIP_TO_IMAGE
 from gimpenums import PLUGIN
 from gimpenums import EXTENSION
 
+# ==========
+#  Settings
+# ==========
+
+# Units are generally in pixels:
+CAPTCHA_LETTERS = 8
+CAPTCHA_WIDTH   = 400
+CAPTCHA_HEIGHT  = 125
+FONT_HEIGHT     = 80
+LEFT_MARGIN     = 10
+
+# Remove characters to reduce confusion. No l, or o, for instance, as running
+# them together might look like b or d.
+CAPTCHA_CHARS   = 'aAbdeEfFgGjJknNMpPqQstTuvxyYzZ2479'
+LETTER_SPACING  = -12
+# Rotate individual letters, in radians:
+ANGLE_RANGE     = (-0.30, 0.25)
+
+FONTS = ['Sans', 'Serif', 'Monospace', 'Serif Bold', 'Century Schoolbook',
+         'DejaVu Sans', 'DejaVu Sans Bold', 'FreeMono', 'FreeSerif']
+
+# The extension of the file type to save generated CAPTCHAs as. Can be ".png"
+# or ".jpg".
+CAPTCHA_FILE_EXT = ".jpg"
+
+# =============================================================================
+#  End of settings (you probably don't want to touch anything further down)
+# =============================================================================
+
+PNG_INTERLACE   = 0
+PNG_COMPRESSION = 9
+PNG_BKGD        = 0
+PNG_GAMA        = 0
+PNG_OFFSET      = 0
+PNG_PHYS        = 0
+PNG_TIME        = 0
+PNG_COMMENT     = 1
+PNG_SVGTRANS    = 0
+
+JPG_QUALITY     = float(1)
+JPG_SMOOTHING   = float(0)
+JPG_OPTIMIZE    = 0
+JPG_PROGRESSIVE = 0
+JPG_COMMENT     = ""
+JPG_SUBSMP      = 0
+JPG_BASELINE    = 1
+JPG_MARKERS     = 0
+JPG_DCTALGO     = 0
+
+# ============================================================================
+#  The first part of this file is the gimp scripting.
+# ============================================================================
 
 def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
                  angle_range, fonts, answer):
