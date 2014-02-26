@@ -28,15 +28,6 @@ import sys
 
 import gimpfu
 import gimpplugin
-def pick_font(fonts):
-    '''Pick a font at random.'''
-    # Using only "roman" or "oblique" fonts should help a lot. Italics
-    # introduce a lot of problems like a's that look like o's etc.
-    #
-    # Future experiment: Return a list of fonts such that no two
-    # adjacent letters share a font. random.suffle maybe?
-
-    return random.choice(fonts)
 
 from gimpfu import gimp
 from gimpfu import pdb as gpdb
@@ -151,9 +142,9 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
     right = left_margin
     last_substrate = None
     for letter in answer:
+        font = random.choice(FONTS)
         substrate = blackLayer.copy()
         img.add_layer(substrate, 0)
-        font = pick_font(fonts)
         new_right = cookie_cutter_letter(img, substrate, right, font, letter)
         # look out for really narrow letters
         if new_right - right < 10:
