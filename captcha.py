@@ -150,26 +150,17 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
         if new_right - right < 20:
             new_right += 5
         right = new_right
-
-    img.remove_layer(black_layer)
-    #gimp.delete(black_layer)
+    img.remove_layer(blackLayer)
 
     # Hide the light noise layer, then collapse all the remaining
     # layers (all letters) into a single layer.
     light_noise_layer.visible = False
-    text_layer = gpdb.gimp_image_merge_visible_layers(img, CLIP_TO_IMAGE)
+    textLayer = gpdb.gimp_image_merge_visible_layers(img, CLIP_TO_IMAGE)
     light_noise_layer.visible = True
 
-    # We aren't doing any letter warping now, but if we were, this is
-    # the point where it should be done. We want to warp the shape of
-    # the text layer which later serves as a cutout for the dark noise
-    # layer. If we warp the dark noise layer directly we will end up
-    # with warped dots.
-
     # Create a layer of dark noise which will display the letters.
-    dark_noise_layer = gimp.Layer(img, 'dark noise',
-                                  sx, sy, RGB_IMAGE,
-                                  100, MULTIPLY_MODE)
+    dark_noise_layer = gimp.Layer(img, 'dark noise', sx, sy,
+                                  RGB_IMAGE, 100, MULTIPLY_MODE)
     img.add_layer(dark_noise_layer, 1)
     gpdb.gimp_drawable_fill(dark_noise_layer, WHITE_FILL)
     gpdb.plug_in_randomize_hurl(img, dark_noise_layer, 25, 1, 0, 0)
@@ -179,18 +170,15 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
     # dramatically affects how the output looks.
 
     # Here's where we do the cutout operation.
-    gpdb.gimp_selection_layer_alpha(text_layer)
+    gpdb.gimp_selection_layer_alpha(textLayer)
     gpdb.gimp_selection_invert(img)
     gpdb.gimp_edit_clear(dark_noise_layer)
     gpdb.gimp_selection_none(img)
 
-    # Do the blurring of the dark noise _after_ the cutout.
+    # After the cutout, blur the dark noise layer and then darken it:
     gpdb.plug_in_gauss_iir(img, dark_noise_layer, 1, 1, 1)
-
-    # Darken _after_ blurring.
     gpdb.gimp_levels(dark_noise_layer, HISTOGRAM_VALUE, 127, 255, 0.25, 0, 255)
-
-    text_layer.visible = False
+    textLayer.visible = False
 
     # If you start gimp without --no-interface with an X server, this
     # line will let you see the image looks like at this point in the
