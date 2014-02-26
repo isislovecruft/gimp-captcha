@@ -5,22 +5,19 @@
 #your installation's gimp-python support is compiled with. ensure that this
 #corresponds, or nothing here will work.
 
-'''
-A Command Line Interface for Captcha Generation with Gimp
+'''A Command Line Interface for Captcha Generation with Gimp
 
 To use this script, place it in a gimp plug-ins directory and make it
 executable. On Ubuntu Edgy this can be: $HOME/.gimp-2.2/plug-ins/
 
 Invoke gimp like so:
-gimp --no-interface --no-data --console-messages \
-    --batch-interpreter plug_in_script_fu_eval \
-    --batch '(python-fu-captcha-generate 1 "PATH" GOAL)' \
-    '(gimp-quit 1)'
 
-Goal is a number of captchas to put in the directory specified by
-path. The directory will be "filled" to the goal level with pngs named
-like answer.png, where answer is the string pictured in the image.
+    gimp --no-interface --no-data --console-messages \
+        --batch '(python-fu-captcha-generate 1 "PATH" GOAL) (gimp-quit 1)'
 
+GOAL is a number of captchas to put in the directory specified by PATH. The
+directory will be "filled" to the goal level with pngs named like answer.png,
+where answer is the string pictured in the image.
 '''
 
 # ===================================================================
