@@ -62,8 +62,13 @@ def findGimpDir():
     return gimpdir
 
 def copyPluginToGimpDir(gimpdir=None):
-    plugin = os.path.join(os.getcwd(), "captcha.py")
+    """Copy ``gimp-captcha/captcha.py`` to the gimp ``plug-ins`` directory.
 
+    :param str gimpdir: The top-level gimp directory in the user's homedir.
+    :raises SystemExit: if either the plugin, ``captcha.py``, or the gimp
+                        ``plug-ins`` directory could not be found.
+    """
+    plugin = os.path.join(os.getcwd(), "captcha.py")
     if not gimpdir:
         return SystemExit("Cannot copy %r to %r" % (plugin, gimpdir))
 
