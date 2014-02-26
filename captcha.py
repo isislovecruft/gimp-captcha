@@ -1,5 +1,6 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
+#
 #NOTE!: the interpreter line above MUST run whichever python version
 #your installation's gimp-python support is compiled with. ensure that this
 #corresponds, or nothing here will work.
