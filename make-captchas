@@ -33,6 +33,11 @@ log.setLevel(30)
 
 
 def getArgParser():
+    """Create our commandline argument parser.
+
+    :rtype: `argparse.ArgumentParser`
+    :returns: A commandline argument parser.
+    """
     parser = argparse.ArgumentParser(prog="make-captchas",
                                      description="CAPTCHA generator",
                                      add_help=True)
@@ -44,6 +49,10 @@ def getArgParser():
     return parser
 
 def findGimpDir():
+    """Try to find our gimp directory.
+
+    It should be something like ``$HOME/.gimp-2.8``.
+    """
     homedir=os.path.expanduser("~/.gimp")
     gimpdir=glob.glob(homedir + "*")
     if not len(gimpdir) > 0:
@@ -67,6 +76,16 @@ def copyPluginToGimpDir(gimpdir=None):
     shutil.copy(plugin, plugindir)
 
 def createGimpShellScript(N, directory, scriptfile=".gimp-captcha-script.sh"):
+    """Write the generated gimp shell command to a file and make it executable.
+
+    This needs to be done, for some reason, for Gimp to generate all the
+    CAPTCHAs properly. Otherwise, it either only creates one CAPTCHA, or it
+    tries to use $DISPLAY. There might be a better way to do this.
+
+    :rtype: str
+    :returns: The full path to the generated shell script.
+    """
+    gimpShellScript = os.path.join(os.getcwd(), scriptfile)
     gimpcmd = """\
 #!/bin/bash
 
@@ -74,7 +93,6 @@ gimp --no-interface --no-data --console-messages \
 --batch '(python-fu-captcha-generate 1 "{0}" {1}) (gimp-quit 1)'
 """.format(str(directory), int(N))
 
-    gimpShellScript = os.path.join(os.getcwd(), scriptfile)
     with open(gimpShellScript, 'w') as fh:
         fh.write(gimpcmd)
         fh.flush()
