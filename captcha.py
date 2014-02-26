@@ -192,47 +192,50 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
     img.enable_undo()
     return img, final
 
-def cookie_cutter_letter(img, substrate_layer, font_height, letter_spacing,
-                         angle_range, right, font, letter):
+def cookie_cutter_letter(img, substrate, right, font, letter):
     '''Cut text shaped like letter out of the given layer.'''
-    temp_layer = gpdb.gimp_text_fontname(img, substrate_layer, right, 0,
-                                         letter, 1,
-                                         False, font_height, PIXELS, font)
 
-    # Future experiment: mess with the y offset. For now just assume
-    # zero.  We get a little variation for free because we center our
-    # rotation on the upper left corner of the letter.
-
-    angle = random.uniform(*angle_range)
-    #img.add_layer(temp_layer, 0)
+    temp_layer = gpdb.gimp_text_fontname(img, substrate, right, 0, letter,
+                                         1, False, FONT_HEIGHT, PIXELS, font)
     gpdb.gimp_selection_layer_alpha(temp_layer)
+
+    angle = random.uniform(*ANGLE_RANGE)
+    xaxis = right
+    yaxis = 15
+    # srcX = float(xaxis)
+    # dstX = float(srcX + random.uniform(0, 25))
+    # srcY = float(yaxis)
+    # dstY = float(srcY + random.uniform(0, 25))
+    # scaleX = scaleY = float(100)
 
     # We need to save the selection as a channel so we can mess with
     # the letter form.
-    text_shape = gpdb.gimp_selection_save(img)
+    shape = gpdb.gimp_selection_save(img)
     gpdb.gimp_selection_none(img)
-    #img.add_channel(text_shape, 2)
     gpdb.gimp_floating_sel_remove(temp_layer)
 
-    # Here's where we distore an individual letter form.
-    gpdb.gimp_drawable_transform_rotate(text_shape, angle, 0, right, 10,
-                                        TRANSFORM_FORWARD,
-                                        INTERPOLATION_CUBIC,
-                                        1, 3, 0)
-    #gimp.delete(temp_layer)
+    # Distort the form of the individual letter:
+    shape = gpdb.gimp_item_transform_rotate(shape, angle, 0, xaxis, yaxis)
 
-    gpdb.gimp_selection_load(text_shape)
-    img.remove_channel(text_shape)
-    #gimp.delete(text_shape)
+    # We aren't doing any letter warping now, but if we were, this is the
+    # point where it should be done. We want to warp the shape of textLayer,
+    # which later serves as a cutout for the dark noise layer. If we warp the
+    # dark noise layer directly we will end up with warped dots.
+    #
+    # gpdb.gimp_context_set_transform_resize(TRANSFORM_RESIZE_CROP)
+    # shape = gpdb.gimp_item_transform_2d(shape, srcX, srcY, angle,
+    #                                     scaleX, scaleY, dstX, dstY)
+    gpdb.gimp_selection_load(shape)
+    img.remove_channel(shape)
 
     # Note the bounding box of the letter form so we can figure out
     # where the next one should go.
     bounds = gpdb.gimp_selection_bounds(img)
-    new_right = bounds[3] + letter_spacing
+    new_right = bounds[3] + LETTER_SPACING
 
     # Actually cut the letter form out of the substate.
     gpdb.gimp_selection_invert(img)
-    gpdb.gimp_edit_clear(substrate_layer)
+    gpdb.gimp_edit_clear(substrate)
     gpdb.gimp_selection_none(img)
     return new_right
 
