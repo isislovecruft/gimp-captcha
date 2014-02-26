@@ -118,12 +118,10 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
     img = gimp.Image(sx, sy, RGB_IMAGE)
     img.disable_undo()
 
-    # Start with a layer of noise, but not too much, as this will be
-    # the background.
-    light_noise_layer = gimp.Layer(img, 'light noise',
-                                   sx, sy, RGB_IMAGE,
-                                   100, NORMAL_MODE)
+    light_noise_layer = gimp.Layer(img, 'light noise', sx, sy,
+                                   RGB_IMAGE, 100, NORMAL_MODE)
     img.add_layer(light_noise_layer, 0)
+
     gpdb.gimp_selection_none(img)
     gpdb.gimp_drawable_fill(light_noise_layer, WHITE_FILL)
 
@@ -140,29 +138,23 @@ def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
     gpdb.plug_in_gauss_iir(img, light_noise_layer, 1, 1, 1)
     gpdb.gimp_desaturate(light_noise_layer)
 
-
     # Next make pure black layer which we will copy repeatedly as a
     # place to cut out letters.
-    black_layer = gimp.Layer(img, 'black',
-                             sx, sy, RGB_IMAGE,
-                             100, NORMAL_MODE)
-    img.add_layer(black_layer, 0)
-    black_layer.add_alpha()
-    gpdb.gimp_layer_add_alpha(black_layer)
-    gpdb.gimp_drawable_fill(black_layer, WHITE_FILL)
-    gpdb.gimp_invert(black_layer)
+    blackLayer = gimp.Layer(img, 'black', sx, sy, RGB_IMAGE, 100, NORMAL_MODE)
+    img.add_layer(blackLayer, 0)
+    blackLayer.add_alpha()
+    gpdb.gimp_layer_add_alpha(blackLayer)
+    gpdb.gimp_drawable_fill(blackLayer, WHITE_FILL)
+    gpdb.gimp_invert(blackLayer)
 
     # Loop through each letter, making it a separate black layer.
     right = left_margin
     last_substrate = None
     for letter in answer:
-        substrate_layer = black_layer.copy()
-        img.add_layer(substrate_layer, 0)
+        substrate = blackLayer.copy()
+        img.add_layer(substrate, 0)
         font = pick_font(fonts)
-        new_right = \
-            cookie_cutter_letter(img, substrate_layer, font_height,
-                                 letter_spacing, angle_range, right, font,
-                                 letter)
+        new_right = cookie_cutter_letter(img, substrate, right, font, letter)
         # look out for really narrow letters
         if new_right - right < 10:
             new_right += 10
