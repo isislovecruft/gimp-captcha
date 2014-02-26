@@ -68,7 +68,11 @@ def copyPluginToGimpDir(gimpdir=None):
     :raises SystemExit: if either the plugin, ``captcha.py``, or the gimp
                         ``plug-ins`` directory could not be found.
     """
-    plugin = os.path.join(os.getcwd(), "captcha.py")
+    plugin = os.path.join(os.getcwd(), "gimp-captcha", "captcha.py")
+
+    if not plugin:
+        return SystemExit("Could not find plugin at expected location: %s"
+                          % plugin)
     if not gimpdir:
         return SystemExit("Cannot copy %r to %r" % (plugin, gimpdir))
 
