@@ -239,68 +239,89 @@ def cookie_cutter_letter(img, substrate, right, font, letter):
     gpdb.gimp_selection_none(img)
     return new_right
 
-# ===================================================================
+
+# ============================================================================
 # The second part of this file implements the gimp plugin goo.
 #
-# It would be simpler if we could just run our own python process and
-# import libgimp or something, but unfortunately the gimp-python
-# libraries can't function unless they are in communication with a
-# running instance of the gimp.
-# ===================================================================
+# It would be simpler if we could just run our own python process and import
+# libgimp or something, but unfortunately the gimp-python libraries can't
+# function unless they are in communication with a running instance of the
+# gimp.
+# ============================================================================
 
-def select_answer(length):
-    '''Select length charaters to form a string.
+def selectAnswer(length):
+    """Select **length** charaters to form a CAPTCHA answer string.
 
-    The alphabet is carefully chosen to contain few similar letter
-    shapes in roman fonts.
-    '''
-    # Remove characters to reduce confusion. No l, or o, for instance,
-    # as running them together might look like b or d.
-    alphabet = 'abdefgjknpqtuvxyz278'
-    answer = ''
-    for letter in random.sample(alphabet, length):
-        answer += letter
+    The alphabet is chosen to contain fewew similar letter shapes in roman
+    fonts.
+
+    :param int length: The number of letters to use for each CAPTCHA answer.
+    :rtype: str
+    :returns: A randomish string which can be made into a CAPTCHA.
+    """
+    answerLetters = []
+    for letter in random.sample(CAPTCHA_CHARS, length):
+        answerLetters.append(letter)
+    answer = ''.join(answerLetters)
     return answer
 
-def count_images(image_dir):
-    '''Count the png images in a directory.'''
-    return len([ f for f in os.listdir(image_dir)
-                 if f.endswith('.png') ])
+def countImages(imageDir):
+    """Count the images with the given file extension in a directory."""
+    return len([f for f in os.listdir(imageDir)
+                if f.endswith(CAPTCHA_FILE_EXT)])
 
-def captcha_generate(image_dir, goal):
-    '''Make sure there are as many catchas in image_dir as goal.'''
-    needed = goal - count_images(image_dir)
+def captcha_generate(imageDir, goal):
+    """Make sure there are as many catchas in image_dir as goal."""
+    needed = goal - countImages(imageDir)
     if needed < 1:
         return
 
-    answers = [ select_answer(5) for i in xrange(0, needed) ]
+    answers = [selectAnswer(CAPTCHA_LETTERS) for i in xrange(0, needed)]
     for answer in answers:
-        image_path = os.path.join(image_dir, '%s.png' % answer)
-        tmp_image_path = '%s.tmp' % image_path
+        imageFile = '{0}{1}'.format(answer, CAPTCHA_FILE_EXT)
+        imagePath = os.path.join(imageDir, imageFile)
+        imageTmp  = '%s.tmp' % imagePath
 
-        # Maybe these could be derived from the command line also.
-        # Units are generally in pixels.
+        img, drawable = make_captcha(CAPTCHA_WIDTH, CAPTCHA_HEIGHT,
+                                     FONT_HEIGHT, LETTER_SPACING, LEFT_MARGIN,
+                                     ANGLE_RANGE, FONTS, answer)
 
-        image_width = 400
-        image_height = 100
-        font_height = 80
-        letter_spacing = -12
-        left_margin = 50
+        try:
+            if CAPTCHA_FILE_EXT == ".jpg":
+                gpdb.file_jpeg_save(img, drawable,
+                                    imageTmp, imageTmp,
+                                    JPG_QUALITY,
+                                    JPG_SMOOTHING,
+                                    JPG_OPTIMIZE,
+                                    JPG_PROGRESSIVE,
+                                    JPG_COMMENT,
+                                    JPG_SUBSMP,
+                                    JPG_BASELINE,
+                                    JPG_MARKERS,
+                                    JPG_DCTALGO)
 
-        # Rotate individual letters, in radians:
-        angle_range = (-0.15, 0.15)
+            elif CAPTCHA_FILE_EXT == ".png":
+                gpdb.file_png_save2(img, drawable,
+                                    imageTmp, imageTmp,
+                                    PNG_INTERLACE,
+                                    PNG_COMPRESSION,
+                                    PNG_BKGD,
+                                    PNG_GAMA,
+                                    PNG_OFFSET,
+                                    PNG_PHYS,
+                                    PNG_TIME,
+                                    PNG_COMMENT,
+                                    PNG_SVGTRANS)
 
-        fonts = ['Sans', 'Serif', 'Monospace', 'Serif Bold']
-
-        # XXX: handle exceptions by unlinking bad images?
-        img, drawable = make_captcha(image_width, image_height,
-                                     font_height, letter_spacing,
-                                     left_margin, angle_range, fonts,
-                                     answer)
-        gpdb.file_png_save2(img, drawable,
-                            tmp_image_path, tmp_image_path,
-                            0, 9, 0, 0, 0, 0, 0, 1, 0)
-        os.rename(tmp_image_path, image_path)
+            else:
+                return SystemExit("Image extension %r is not supported!"
+                                  % CAPTCHA_FILE_EXT)
+        except Exception as err:
+            print(err)
+            if os.path.isfile(imageTmp):
+                os.unlink(imageTmp)
+        else:
+            os.rename(imageTmp, imagePath)
 
 
 # Gimp-python boilerplate.
