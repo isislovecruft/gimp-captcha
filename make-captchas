@@ -106,7 +106,7 @@ def generateCaptchas(N=2000, directory='./captchas'):
     gimpdir = findGimpDir()
     copyPluginToGimpDir(gimpdir)
     backupCaptchaDir(directory)
-    command = createGimpShellScript(N, directory)
+    gimpShellScript = createGimpShellScript(N, directory)
 
     # shlcmd = []
     # shlcmd.append("/bin/bash")
@@ -121,6 +121,7 @@ def generateCaptchas(N=2000, directory='./captchas'):
     #                         shell=True)
     # proc.wait()
 
+    command = gimpShellScript
     log.info("Generating %d CAPTCHAs..." % int(N))
     log.debug("Running script: %s" % command)
 
@@ -129,8 +130,12 @@ def generateCaptchas(N=2000, directory='./captchas'):
     if returnCode == 0:
         log.info("Success!")
     else:
-        log.error("Something went wrong... process exited with statuscode %d."
-                  % returnCode)
+        log.error("Something went wrong...")
+        log.error("process exited with statuscode %d" % returnCode)
+
+    if os.path.isfile(gimpShellScript):
+        os.unlink(gimpShellScript)
+
     return returnCode
 
 
