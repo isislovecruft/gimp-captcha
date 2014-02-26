@@ -25,15 +25,14 @@ where answer is the string pictured in the image.
 # solution.
 # ===================================================================
 
+from tempfile import mkstemp
+
+import os
 import random
+import sys
+
 import gimpfu
 import gimpplugin
-from gimpfu import gimp, pdb as gpdb, \
-    RGB_IMAGE, GRAY_IMAGE, GRAY, NORMAL_MODE, \
-    MULTIPLY_MODE, WHITE_FILL, TRANSPARENT_FILL, FALSE, PIXELS, \
-    TRANSFORM_FORWARD, INTERPOLATION_CUBIC, HISTOGRAM_VALUE, CLIP_TO_IMAGE
-from gimpenums import PLUGIN, EXTENSION, PDB_INT32
-
 def pick_font(fonts):
     '''Pick a font at random.'''
     # Using only "roman" or "oblique" fonts should help a lot. Italics
@@ -43,6 +42,24 @@ def pick_font(fonts):
     # adjacent letters share a font. random.suffle maybe?
 
     return random.choice(fonts)
+
+from gimpfu import gimp
+from gimpfu import pdb as gpdb
+from gimpfu import RGB_IMAGE
+from gimpfu import GRAY_IMAGE
+from gimpfu import GRAY
+from gimpfu import NORMAL_MODE
+from gimpfu import MULTIPLY_MODE
+from gimpfu import WHITE_FILL
+from gimpfu import TRANSPARENT_FILL
+from gimpfu import FALSE
+from gimpfu import PIXELS
+from gimpfu import HISTOGRAM_VALUE
+from gimpfu import CLIP_TO_IMAGE
+
+from gimpenums import PLUGIN
+from gimpenums import EXTENSION
+
 
 def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
                  angle_range, fonts, answer):
@@ -208,10 +225,6 @@ def cookie_cutter_letter(img, substrate_layer, font_height, letter_spacing,
 # libraries can't function unless they are in communication with a
 # running instance of the gimp.
 # ===================================================================
-
-import sys
-import os
-from tempfile import mkstemp
 
 def select_answer(length):
     '''Select length charaters to form a string.
