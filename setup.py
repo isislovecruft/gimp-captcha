@@ -91,7 +91,7 @@ setuptools.setup(
     maintainer_email='isis at patternsinthevoid dot net 0xA3ADB67A2CDB8B35',
     url='https://github.com/isislovecruft/gimp-captcha',
     download_url='https://github.com/isislovecruft/gimp-captcha',
-    #packages=['gimp-captcha'],
+    packages=['gimp-captcha'],
     scripts=['make-captchas'],
     cmdclass=get_cmdclass(),
     #install_requires=requires,
