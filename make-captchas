@@ -23,6 +23,8 @@ import os
 import shutil
 import sys
 
+__package__ = 'gimp-captcha'
+
 DEFAULT_CAPTCHA_DIR = os.path.join(os.getcwd(), "captchas")
 CAPTCHA_FILE_EXT = '.jpg'
 
@@ -68,7 +70,8 @@ def copyPluginToGimpDir(gimpdir=None):
     :raises SystemExit: if either the plugin, ``captcha.py``, or the gimp
                         ``plug-ins`` directory could not be found.
     """
-    plugin = os.path.join(os.getcwd(), "gimp-captcha", "captcha.py")
+    here = str(__file__).rsplit(os.path.sep, 3)[0]
+    plugin = os.path.join(here, __package__, "captcha.py")
 
     if not plugin:
         return SystemExit("Could not find plugin at expected location: %s"
