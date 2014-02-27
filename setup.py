@@ -94,6 +94,7 @@ setuptools.setup(
     packages=['gimp-captcha'],
     scripts=['make-captchas'],
     cmdclass=get_cmdclass(),
+    zip_safe=False,
     #install_requires=requires,
     #dependency_links=deplinks,
 )
