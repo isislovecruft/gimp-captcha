@@ -13,11 +13,11 @@ executable. On Ubuntu Edgy this can be: $HOME/.gimp-2.2/plug-ins/
 Invoke gimp like so:
 
     gimp --no-interface --no-data --console-messages \
-        --batch '(python-fu-captcha-generate 1 "PATH" GOAL) (gimp-quit 1)'
+        --batch '(python-fu-captcha-generate 1 "DIRECTORY" NUMBER) (gimp-quit 1)'
 
-GOAL is a number of captchas to put in the directory specified by PATH. The
-directory will be "filled" to the goal level with pngs named like answer.png,
-where answer is the string pictured in the image.
+NUMBER is the number of captchas to put in the directory specified by
+DIRECTORY. The directory will be "filled" to the goal level with pngs named
+like ANSWER.jpg, where ANSWER is the string pictured in the image.
 '''
 
 from tempfile import mkstemp
@@ -95,9 +95,6 @@ JPG_BASELINE    = 1
 JPG_MARKERS     = 0
 JPG_DCTALGO     = 0
 
-# ============================================================================
-#  The first part of this file is the gimp scripting.
-# ============================================================================
 
 def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
                  angle_range, fonts, answer):
@@ -239,16 +236,6 @@ def cookie_cutter_letter(img, substrate, right, font, letter):
     gpdb.gimp_selection_none(img)
     return new_right
 
-
-# ============================================================================
-# The second part of this file implements the gimp plugin goo.
-#
-# It would be simpler if we could just run our own python process and import
-# libgimp or something, but unfortunately the gimp-python libraries can't
-# function unless they are in communication with a running instance of the
-# gimp.
-# ============================================================================
-
 def selectAnswer(length):
     """Select **length** charaters to form a CAPTCHA answer string.
 
@@ -325,7 +312,12 @@ def captcha_generate(imageDir, goal):
 
 
 # Gimp-python boilerplate.
-gimpfu.register('captcha_generate', '', '', '', '', '',
+gimpfu.register('captcha_generate',
+                'Generate CAPTCHAs',
+                'Generate CAPTCHAs',
+                'Isis Lovecruft',
+                'Isis Lovecruft',
+                '2014',
                 '<Toolbox>/Xtns/Make-Captcha', '',
                 [(gimpfu.PF_STRING, 'basedir', 'base directory for images', ''),
                  (gimpfu.PF_INT, 'count', 'number of images to add', 0)],
