@@ -95,9 +95,6 @@ JPG_BASELINE    = 1
 JPG_MARKERS     = 0
 JPG_DCTALGO     = 0
 
-# ============================================================================
-#  The first part of this file is the gimp scripting.
-# ============================================================================
 
 def make_captcha(sx, sy, font_height, letter_spacing, left_margin,
                  angle_range, fonts, answer):
@@ -238,16 +235,6 @@ def cookie_cutter_letter(img, substrate, right, font, letter):
     gpdb.gimp_edit_clear(substrate)
     gpdb.gimp_selection_none(img)
     return new_right
-
-
-# ============================================================================
-# The second part of this file implements the gimp plugin goo.
-#
-# It would be simpler if we could just run our own python process and import
-# libgimp or something, but unfortunately the gimp-python libraries can't
-# function unless they are in communication with a running instance of the
-# gimp.
-# ============================================================================
 
 def selectAnswer(length):
     """Select **length** charaters to form a CAPTCHA answer string.
