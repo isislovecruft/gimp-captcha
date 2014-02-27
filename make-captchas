@@ -1,0 +1,181 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''make-captchas ― Create new CAPTCHAS
+
+Runs the following command:
+
+gimp --no-interface --no-data --console-messages \
+  --batch '(python-fu-captcha-generate 1 "DIRECTORY" NUMBER) (gimp-quit 1)'
+
+where:
+   DIRECTORY is the directory to store generated captchas in
+   NUMBER    is the number of captchas to create
+'''
+
+from __future__ import print_function
+from datetime import datetime
+
+import argparse
+import glob
+import logging
+import os
+import shutil
+import sys
+
+__package__ = 'gimp-captcha'
+
+DEFAULT_CAPTCHA_DIR = os.path.join(os.getcwd(), "captchas")
+CAPTCHA_FILE_EXT = '.jpg'
+
+
+log = logging.getLogger('captchas')
+log.addHandler(logging.StreamHandler(sys.stdout))
+log.setLevel(30)
+
+
+def getArgParser():
+    """Create our commandline argument parser.
+
+    :rtype: `argparse.ArgumentParser`
+    :returns: A commandline argument parser.
+    """
+    parser = argparse.ArgumentParser(prog="make-captchas",
+                                     description="CAPTCHA generator",
+                                     add_help=True)
+    parser.add_argument('-n', '--number', type=int, default=100,
+                        help="Number of CAPTCHAs to create")
+    parser.add_argument('-d', '--directory', type=str,
+                        default=DEFAULT_CAPTCHA_DIR,
+                        help="The directory to create CAPTCHAs in")
+    return parser
+
+def findGimpDir():
+    """Try to find our gimp directory.
+
+    It should be something like ``$HOME/.gimp-2.8``.
+    """
+    homedir=os.path.expanduser("~/.gimp")
+    gimpdir=glob.glob(homedir + "*")
+    if not len(gimpdir) > 0:
+        return SystemExit("Could not find Gimp data directory in $HOME")
+    gimpdir = gimpdir[0]
+    log.debug("Using Gimp data directory %r" % gimpdir)
+    return gimpdir
+
+def copyPluginToGimpDir(gimpdir=None):
+    """Copy ``gimp-captcha/captcha.py`` to the gimp ``plug-ins`` directory.
+
+    :param str gimpdir: The top-level gimp directory in the user's homedir.
+    :raises SystemExit: if either the plugin, ``captcha.py``, or the gimp
+                        ``plug-ins`` directory could not be found.
+    """
+    # Use this one with a setup.py:
+    #here = str(__file__).rsplit(os.path.sep, 3)[0]
+    here = str(__file__).rsplit(os.path.sep, 1)[0]
+    plugin = os.path.join(here, __package__, "captcha.py")
+
+    if not plugin:
+        return SystemExit("Could not find plugin at expected location: %s"
+                          % plugin)
+    if not gimpdir:
+        return SystemExit("Cannot copy %r to %r" % (plugin, gimpdir))
+
+    plugindir = os.path.join(gimpdir, "plug-ins")
+
+    if not os.path.isdir(os.path.expanduser(plugindir)):
+        print("%r does not exist. Creating..." % plugindir)
+        os.makedirs(plugindir)
+    log.debug("Copying %r to %r..." % (plugin, plugindir))
+    shutil.copy(plugin, plugindir)
+
+def createGimpShellScript(N, directory, scriptfile=".gimp-captcha-script.sh"):
+    """Write the generated gimp shell command to a file and make it executable.
+
+    This needs to be done, for some reason, for Gimp to generate all the
+    CAPTCHAs properly. Otherwise, it either only creates one CAPTCHA, or it
+    tries to use $DISPLAY. There might be a better way to do this.
+
+    :rtype: str
+    :returns: The full path to the generated shell script.
+    """
+    gimpShellScript = os.path.join(os.getcwd(), scriptfile)
+    gimpcmd = """\
+#!/bin/bash
+
+gimp --no-interface --no-data --console-messages \
+--batch '(python-fu-captcha-generate 1 "{0}" {1}) (gimp-quit 1)'
+""".format(str(directory), int(N))
+
+    with open(gimpShellScript, 'w') as fh:
+        fh.write(gimpcmd)
+        fh.flush()
+    os.chmod(gimpShellScript, 0744)
+
+    return gimpShellScript
+
+def backupCaptchaDir(directory):
+    if os.path.isdir(directory):
+        today = datetime.strftime(datetime.now(), "-%Y-%m-%d")
+        bak = directory + today
+
+        if os.path.isdir(bak):
+            log.info("Adding new CAPTCHAs to backup dir: %r" % bak)
+            fileglob = os.path.join(directory, "*" + CAPTCHA_FILE_EXT)
+            captchas = glob.glob(fileglob)
+            for captcha in captchas:
+                shutil.move(captcha, bak)
+        else:
+            log.info("Backing up previously generated CAPTCHAs to %r..." % bak)
+            shutil.move(directory, bak)
+
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+
+
+def generateCaptchas(N=2000, directory='./captchas'):
+
+    gimpdir = findGimpDir()
+    copyPluginToGimpDir(gimpdir)
+    backupCaptchaDir(directory)
+    gimpShellScript = createGimpShellScript(N, directory)
+
+    # shlcmd = []
+    # shlcmd.append("/bin/bash")
+    # shlcmd.append("-c")
+    # shlcmd.append(gimpShellScript)
+    # command = ' '.join(shlcmd)
+    #
+    # proc = subprocess.Popen(cmd,
+    #                         stdin=subprocess.PIPE,
+    #                         stdout=subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         shell=True)
+    # proc.wait()
+
+    command = gimpShellScript
+    log.info("Generating %d CAPTCHAs..." % int(N))
+    log.debug("Running script: %s" % command)
+
+    returnCode = os.system(command)
+
+    if returnCode == 0:
+        log.info("Success!")
+    else:
+        log.error("Something went wrong...")
+        log.error("process exited with statuscode %d" % returnCode)
+
+    if os.path.isfile(gimpShellScript):
+        os.unlink(gimpShellScript)
+
+    return returnCode
+
+
+if __name__ == "__main__":
+    parser = getArgParser()
+    args = parser.parse_args()
+
+    returnCode = 1
+    if args.number:
+        returnCode = generateCaptchas(N=args.number, directory=args.directory)
+    exit(returnCode)

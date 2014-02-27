@@ -1,0 +1,67 @@
+# Python binary and object files
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+*.egg-info/*
+.installed.cfg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-install.log
+installed-files.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+*.prof
+nosetests.xml
+doc/coverage-html/*
+
+# Translations
+*.mo
+
+# Editor stuff
+\#*
+.\#*
+*~
+
+# Git mergetool backups and save files
+*.orig
+*.bak
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# PyCharm
+.idea/*
+
+# etags/ctags
+TAGS
+
+# ignore coverage results files:
+.coverage
+.coverage.*
+
+# trial test run directory:
+_trial_temp/*
+_trial_temp.lock
+
+captchas/*
+captchas-*/*
+.gimp-captcha-script.sh

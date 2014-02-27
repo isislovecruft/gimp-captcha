@@ -1,0 +1,31 @@
+===============
+ gimp-captcha
+===============
+gimp-captcha is a program for generating difficult to break captchas, by
+scripting Gimp via Python.
+
+INSTALLATION & USAGE
+~~~~~~~~~~~~~~~~~~~~
+There isn't really a way to install yet::
+
+    git clone https://github.com/isislovecruft/gimp-captcha.git
+    cd gimp-captcha
+    ./make-captchas --help
+
+STATUS
+~~~~~~
+The script is written to generate captchas in batches, as even on a fast
+system it isn't usually desirable to fire up a whole gimp instance to
+generate a single captcha.
+
+gimp-captcha has been tested and runs in production with gimp-2.8 on
+Debian-derived systems.
+
+CREDITS
+~~~~~~~
+Portions of this code were originally created by Darrin Thompson for
+SpiderOak_. These portions were released under the GPLv3 license and as such
+are released under the same license.
+
+.. _SpiderOak: https://spideroak.com/
+.. -*- mode: rst-mode -*-
