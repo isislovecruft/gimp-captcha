@@ -312,7 +312,12 @@ def captcha_generate(imageDir, goal):
 
 
 # Gimp-python boilerplate.
-gimpfu.register('captcha_generate', '', '', '', '', '',
+gimpfu.register('captcha_generate',
+                'Generate CAPTCHAs',
+                'Generate CAPTCHAs',
+                'Isis Lovecruft',
+                'Isis Lovecruft',
+                '2014',
                 '<Toolbox>/Xtns/Make-Captcha', '',
                 [(gimpfu.PF_STRING, 'basedir', 'base directory for images', ''),
                  (gimpfu.PF_INT, 'count', 'number of images to add', 0)],
